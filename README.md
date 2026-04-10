@@ -1,12 +1,21 @@
 # 📊 Real-Time E-Commerce Analytics Pipeline
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Streamlit_Cloud-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://real-time-ecommerce-analytics-pipeline.streamlit.app/)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Kafka](https://img.shields.io/badge/Apache_Kafka-3.7.0-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)](https://kafka.apache.org/)
 [![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas_Cloud-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/cloud/atlas)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Cloud_Live-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-A professional, end-to-end event-driven architecture designed to simulate, process, and visualize global e-commerce transaction streams in real-time. This project features a **Cloud-Native persistence layer** using MongoDB Atlas and is optimized for seamless deployment on Streamlit Cloud.
+A professional, end-to-end event-driven architecture designed to simulate, process, and visualize global e-commerce transaction streams in real-time. This project features a **Cloud-Native persistence layer** using MongoDB Atlas and is live on Streamlit Cloud.
+
+---
+
+## 🚀 Live Deployment
+You can access the live dashboard here:  
+**[👉 real-time-ecommerce-analytics-pipeline.streamlit.app](https://real-time-ecommerce-analytics-pipeline.streamlit.app/)**
+
+> [!NOTE]  
+> The live dashboard displays real-time data processed via a local Kafka cluster synchronized with MongoDB Atlas cloud.
 
 ---
 
