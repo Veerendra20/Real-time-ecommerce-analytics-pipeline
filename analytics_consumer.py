@@ -96,19 +96,18 @@ def main():
                     aov = total_revenue / total_orders if total_orders > 0 else 0
                     
                     # Live Dashboard View (Console)
-                    if not is_cloud:
-                        clear_console()
-                        print("="*40)
-                        print("   LIVE E-COMMERCE ANALYTICS DASHBOARD")
-                        print("="*40)
-                        print(f"Total Successful Orders: {total_orders}")
-                        print(f"Total Revenue:         INR {total_revenue:,.2f}")
-                        print(f"Average Order Value:   INR {aov:,.2f}")
-                        print("-"*40)
-                        print("Top Categories:")
-                        for cat, count in sorted(category_counts.items(), key=lambda x: x[1], reverse=True):
-                            print(f" - {cat:12}: {count}")
-                        print("="*40)
+                    clear_console()
+                    print("="*40)
+                    print("   LIVE E-COMMERCE ANALYTICS DASHBOARD")
+                    print("="*40)
+                    print(f"Total Successful Orders: {total_orders}")
+                    print(f"Total Revenue:         INR {total_revenue:,.2f}")
+                    print(f"Average Order Value:   INR {aov:,.2f}")
+                    print("-"*40)
+                    print("Top Categories:")
+                    for cat, count in sorted(category_counts.items(), key=lambda x: x[1], reverse=True):
+                        print(f" - {cat:12}: {count}")
+                    print("="*40)
 
                     # Save analytics to MongoDB
                     analytics_data = {
