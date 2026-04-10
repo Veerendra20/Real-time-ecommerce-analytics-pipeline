@@ -1,0 +1,24 @@
+# Core Files
+.env
+
+# Middlewares (Too large for GitHub)
+j/
+k/
+
+# Python logs & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+
+# Environment
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS specific
+.DS_Store
+Thumbs.db

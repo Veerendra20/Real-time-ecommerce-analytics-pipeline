@@ -1,0 +1,6 @@
+streamlit
+pymongo[srv]
+kafka-python
+pandas
+altair
+python-dotenv
