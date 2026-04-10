@@ -51,13 +51,11 @@ graph TD
 ### 🛡️ **Self-Healing Connectivity**
 Built for the real world, both the producer and consumer feature an **exponential backoff retry mechanism**, ensuring they can wait for infrastructure to stabilize or recover from transient disconnects without data loss.
 
-### 🍱 **Cloud-Ready Persistence**
-By utilizing MongoDB Atlas, this project eliminates local database dependencies. This allows for a **Hybrid Deployment Pattern**: run the analytics engine anywhere, and view the results on a globally accessible dashboard.
-
-### 📊 **Live Business Intelligence**
--   **Dynamic Revenues**: Real-time tracking of total sales and order volume.
--   **Trend Analysis**: Live up/down indicators tracking performance changes in seconds.
--   **Category Distribution**: Real-time visualization of market share across product lines.
+## 🍱 Cloud-Native Persistence
+By utilizing **MongoDB Atlas**, this project eliminates all local database installation requirements. This enables a **Hybrid Deployment Pattern**:
+- **Data Ingestion**: Runs on your local machine (Kafka + Simulator + Engine).
+- **Data Visualization**: Hosted globally and securely on Streamlit Cloud.
+- **Global Synchronization**: Real-time data syncs across continents via Atlas Cloud clusters.
 
 ---
 
@@ -65,25 +63,25 @@ By utilizing MongoDB Atlas, this project eliminates local database dependencies.
 
 ### Prerequisites
 -   **Python 3.12+**
--   **Git**
--   **MongoDB Atlas Cluster** (A free M0 tier cluster is perfect)
+-   **Apache Kafka (Local)**: Included in the repository under `/k`.
+-   **MongoDB Atlas Cluster**: A free "M0" tier cluster is perfect. No local MongoDB installation is required.
 
-### Installation
+### Installation & Configuration
 1.  **Clone the Repository**:
     ```bash
     git clone https://github.com/Veerendra20/Real-time-ecommerce-analytics-pipeline.git
     cd Real-time-ecommerce-analytics-pipeline
     ```
-2.  **Install Dependencies**:
+2.  **Environment Setup**:
+    Create a `.env` file in the root directory and add your Atlas URI:
+    ```bash
+    # .env
+    MONGO_URI=mongodb+srv://<user>:<password>@cluster0.mongodb.net/?appName=Cluster0
+    ```
+3.  **Install Requirements**:
     ```bash
     py -3.12 -m pip install -r requirements.txt
     ```
-
-### Configuration
-Update the `.env` file with your **MongoDB Atlas connection string**:
-```bash
-MONGO_URI=mongodb+srv://<user>:<password>@cluster0.mongodb.net/?appName=Cluster0
-```
 
 ---
 
@@ -92,12 +90,18 @@ MONGO_URI=mongodb+srv://<user>:<password>@cluster0.mongodb.net/?appName=Cluster0
 ### **Power Launch (Automated)**
 Launch the entire local stack with a single managed script. This orchestrates Zookeeper, Kafka, the Simulator, and the Analytics Engine sequentially.
 
-> [!IMPORTANT]
-> **Cloud Setup**: For **Streamlit Cloud** deployment, ensure you add your Atlas URI to the **Secrets** menu in the Streamlit dashboard as `mongo.connection_string`.
-
 ```powershell
 powershell -ExecutionPolicy Bypass -File run_pipeline.ps1
 ```
+
+### **Streamlit Cloud Deployment**
+For direct cloud synchronization, configure your **Secrets** in the Streamlit Cloud Dashboard:
+1.  Go to **Settings** -> **Secrets**.
+2.  Paste your connection string in the **Flat Format** (most reliable):
+    ```toml
+    MONGO_URI = "your_atlas_connection_string_here"
+    ```
+3.  Save and Reboot your cloud app.
 
 ### **Manual Data Verification**
 Run the diagnostic tool to monitor the live Atlas database state independently:
