@@ -32,7 +32,7 @@ def get_mongodb_connection():
     except Exception:
         pass 
 
-    # Attempt 2: Local .env File (Atlas or Custom Local URI)
+    # Attempt 2: Environment Variable (Atlas Cloud - Local Run)
     try:
         uri = os.getenv("MONGO_URI")
         if uri:
@@ -42,16 +42,13 @@ def get_mongodb_connection():
     except Exception:
         pass
 
-    # Attempt 3: Default Local MongoDB Fallback
-    try:
-        uri = "mongodb://localhost:27017/"
-        client = MongoClient(uri, serverSelectionTimeoutMS=2000)
-        client.admin.command('ping')
-        return client
-    except Exception as e:
-        st.error(f"❌ Critical Error: All connection attempts failed. {e}")
-        st.stop()
-        return None
+    # No connection found - Critical Stop
+    st.error("❌ Database Configuration Missing!")
+    st.write("For Streamlit Cloud deployments, ensure you have set `mongo.connection_string` in the **Secrets** menu.")
+    st.write("For local runs, ensure your `MONGO_URI` is correctly set in your `.env` file.")
+    st.info("💡 Note: Local MongoDB fallbacks have been disabled for this 'Atlas-Only' deployment.")
+    st.stop()
+    return None
 
 client = get_mongodb_connection()
 db = client["ecommerce_db"]

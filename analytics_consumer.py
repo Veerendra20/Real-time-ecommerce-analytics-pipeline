@@ -44,19 +44,24 @@ def main():
             time.sleep(3)
 
     # --- MONGODB CONNECTION ---
-    is_cloud = os.getenv('MONGO_URI') is not None
-    mongo_uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
+    mongo_uri = os.getenv('MONGO_URI')
     
-    print(f"Connecting to MongoDB ({'Cloud' if is_cloud else 'Local'})...")
+    if not mongo_uri:
+        print("[ERROR] DATABASE CONFIGURATION MISSING!")
+        print("Please ensure MONGO_URI (Atlas Cloud) is set in your environment or .env file.")
+        print("Local fallbacks are disabled for this 'Atlas-Only' deployment.")
+        return
+
+    print("Connecting to MongoDB Atlas Cloud Cluster...")
     try:
         mongo_client = MongoClient(mongo_uri)
         db = mongo_client["ecommerce_db"]
         collection = db["Real time-Ecommerce"]
         # Force connection check
         mongo_client.admin.command('ping')
-        print("[SUCCESS] Successfully connected to MongoDB!")
+        print("[SUCCESS] Successfully connected to MongoDB Atlas!")
     except Exception as e:
-        print(f"[ERROR] Error connecting to MongoDB: {e}")
+        print(f"[ERROR] Fatal error connecting to Atlas: {e}")
         return
 
     # Analytics variables
