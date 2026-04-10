@@ -22,56 +22,58 @@ st.set_page_config(
 # --- MONGODB CONNECTION ---
 @st.cache_resource
 def get_mongodb_connection():
+    connection_errors = []
+
     # Attempt 1: Streamlit Cloud Secrets (Production - Flexible Lookup)
     try:
-        if "mongo" in st.secrets:
-            # Check for nested format: [mongo] connection_string = "..."
-            if isinstance(st.secrets["mongo"], dict) and "connection_string" in st.secrets["mongo"]:
-                uri = st.secrets["mongo"]["connection_string"]
-            # Check for direct format: mongo = "..."
-            elif isinstance(st.secrets["mongo"], str):
-                uri = st.secrets["mongo"]
-            else:
-                uri = None
-            
-            if uri:
-                client = MongoClient(uri, serverSelectionTimeoutMS=5000)
-                client.admin.command('ping')
-                return client
-    except Exception:
-        pass 
-
-    # Attempt 2: Streamlit Cloud Secrets (Flat MONGO_URI)
-    try:
+        uri = None
         if "MONGO_URI" in st.secrets:
             uri = st.secrets["MONGO_URI"]
+        elif "mongo" in st.secrets:
+            if isinstance(st.secrets["mongo"], dict) and "connection_string" in st.secrets["mongo"]:
+                uri = st.secrets["mongo"]["connection_string"]
+            elif isinstance(st.secrets["mongo"], str):
+                uri = st.secrets["mongo"]
+        
+        if uri:
             client = MongoClient(uri, serverSelectionTimeoutMS=5000)
             client.admin.command('ping')
             return client
-    except Exception:
-        pass
+    except Exception as e:
+        connection_errors.append(f"Cloud Connection Failed: {str(e)}")
 
-    # Attempt 3: Environment Variable (Atlas Cloud - Local Run)
+    # Attempt 2: Environment Variable (Atlas Cloud - Local Run)
     try:
         uri = os.getenv("MONGO_URI")
         if uri:
             client = MongoClient(uri, serverSelectionTimeoutMS=5000)
             client.admin.command('ping')
             return client
-    except Exception:
-        pass
+    except Exception as e:
+        connection_errors.append(f"Local Env Failed: {str(e)}")
 
     # No connection found - Diagnostic Stop
-    st.error("❌ Database Configuration Missing!")
+    st.error("❌ Database Connection Blocked!")
     
     # Help guide
-    st.write("### 🔍 Diagnostic Helper")
-    st.write(f"Detected Secret Keys: `{list(st.secrets.keys()) if st.secrets else 'None'}`")
-    if "mongo" in st.secrets:
-        st.write(f"Type of 'mongo' secret: `{type(st.secrets['mongo']).__name__}`")
+    st.write("### 🔍 Live Debugger")
+    st.write(f"**Detected Secret Keys:** `{list(st.secrets.keys()) if st.secrets else 'None'}`")
+    if connection_errors:
+        st.write("**Specific Errors Encountered:**")
+        for err in connection_errors:
+            st.code(err, language="text")
+            
+            if "Timeout" in err or "serverSelectionTimeoutMS" in err:
+                st.warning("⚠️ **Atlas IP Whitelisting Detected!**")
+                st.write("Streamlit Cloud uses dynamic IPs. In [MongoDB Atlas](https://cloud.mongodb.com/):")
+                st.write("1. Go to **Network Access**.")
+                st.write("2. Click **Add IP Address**.")
+                st.write("3. Select **Allow Access From Anywhere** (0.0.0.0/0).")
+                st.write("4. Click **Confirm** and wait 60 seconds.")
+    
     st.write("---")
-    st.info("💡 **Recommended Fix**")
-    st.write("Change your Streamlit Cloud Secrets to use this simple one-liner (the 'Flat' format):")
+    st.info("💡 **Quick Configuration Check**")
+    st.write("Ensure your Streamlit Cloud Secrets contains it exactly like this:")
     st.code("MONGO_URI = \"your_atlas_uri_here\"", language="toml")
     
     st.stop()
