@@ -22,9 +22,9 @@ st.set_page_config(
 # --- MONGODB CONNECTION ---
 @st.cache_resource
 def get_mongodb_connection():
-    # Attempt 1: Streamlit Cloud Secrets (Production)
+    # Attempt 1: Streamlit Cloud Secrets (Production - Nested)
     try:
-        if "mongo" in st.secrets:
+        if "mongo" in st.secrets and "connection_string" in st.secrets["mongo"]:
             uri = st.secrets["mongo"]["connection_string"]
             client = MongoClient(uri, serverSelectionTimeoutMS=5000)
             client.admin.command('ping')
@@ -32,7 +32,17 @@ def get_mongodb_connection():
     except Exception:
         pass 
 
-    # Attempt 2: Environment Variable (Atlas Cloud - Local Run)
+    # Attempt 2: Streamlit Cloud Secrets (Production - Flat)
+    try:
+        if "MONGO_URI" in st.secrets:
+            uri = st.secrets["MONGO_URI"]
+            client = MongoClient(uri, serverSelectionTimeoutMS=5000)
+            client.admin.command('ping')
+            return client
+    except Exception:
+        pass
+
+    # Attempt 3: Environment Variable (Atlas Cloud - Local Run)
     try:
         uri = os.getenv("MONGO_URI")
         if uri:
@@ -42,11 +52,19 @@ def get_mongodb_connection():
     except Exception:
         pass
 
-    # No connection found - Critical Stop
+    # No connection found - Diagnostic Stop
     st.error("❌ Database Configuration Missing!")
-    st.write("For Streamlit Cloud deployments, ensure you have set `mongo.connection_string` in the **Secrets** menu.")
-    st.write("For local runs, ensure your `MONGO_URI` is correctly set in your `.env` file.")
-    st.info("💡 Note: Local MongoDB fallbacks have been disabled for this 'Atlas-Only' deployment.")
+    
+    # Help guide
+    st.write("### 🔍 Diagnostic Helper")
+    st.write(f"Detected Secret Keys: `{list(st.secrets.keys()) if st.secrets else 'None'}`")
+    st.write("---")
+    st.info("💡 **Fix Instructions**")
+    st.write("1. Ensure your Streamlit Cloud Secrets contains it exactly like this:")
+    st.code("[mongo]\nconnection_string = \"your_atlas_uri_here\"", language="toml")
+    st.write("2. Or use a flat key: `MONGO_URI = \"your_atlas_uri_here\"`")
+    st.write("3. Make sure you clicked **Save** and **Rebooted** the app.")
+    
     st.stop()
     return None
 
