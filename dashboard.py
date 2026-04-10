@@ -22,17 +22,26 @@ st.set_page_config(
 # --- MONGODB CONNECTION ---
 @st.cache_resource
 def get_mongodb_connection():
-    # Attempt 1: Streamlit Cloud Secrets (Production - Nested)
+    # Attempt 1: Streamlit Cloud Secrets (Production - Flexible Lookup)
     try:
-        if "mongo" in st.secrets and "connection_string" in st.secrets["mongo"]:
-            uri = st.secrets["mongo"]["connection_string"]
-            client = MongoClient(uri, serverSelectionTimeoutMS=5000)
-            client.admin.command('ping')
-            return client
+        if "mongo" in st.secrets:
+            # Check for nested format: [mongo] connection_string = "..."
+            if isinstance(st.secrets["mongo"], dict) and "connection_string" in st.secrets["mongo"]:
+                uri = st.secrets["mongo"]["connection_string"]
+            # Check for direct format: mongo = "..."
+            elif isinstance(st.secrets["mongo"], str):
+                uri = st.secrets["mongo"]
+            else:
+                uri = None
+            
+            if uri:
+                client = MongoClient(uri, serverSelectionTimeoutMS=5000)
+                client.admin.command('ping')
+                return client
     except Exception:
         pass 
 
-    # Attempt 2: Streamlit Cloud Secrets (Production - Flat)
+    # Attempt 2: Streamlit Cloud Secrets (Flat MONGO_URI)
     try:
         if "MONGO_URI" in st.secrets:
             uri = st.secrets["MONGO_URI"]
@@ -58,12 +67,12 @@ def get_mongodb_connection():
     # Help guide
     st.write("### 🔍 Diagnostic Helper")
     st.write(f"Detected Secret Keys: `{list(st.secrets.keys()) if st.secrets else 'None'}`")
+    if "mongo" in st.secrets:
+        st.write(f"Type of 'mongo' secret: `{type(st.secrets['mongo']).__name__}`")
     st.write("---")
-    st.info("💡 **Fix Instructions**")
-    st.write("1. Ensure your Streamlit Cloud Secrets contains it exactly like this:")
-    st.code("[mongo]\nconnection_string = \"your_atlas_uri_here\"", language="toml")
-    st.write("2. Or use a flat key: `MONGO_URI = \"your_atlas_uri_here\"`")
-    st.write("3. Make sure you clicked **Save** and **Rebooted** the app.")
+    st.info("💡 **Recommended Fix**")
+    st.write("Change your Streamlit Cloud Secrets to use this simple one-liner (the 'Flat' format):")
+    st.code("MONGO_URI = \"your_atlas_uri_here\"", language="toml")
     
     st.stop()
     return None
